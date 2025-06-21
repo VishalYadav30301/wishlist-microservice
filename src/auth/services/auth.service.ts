@@ -15,7 +15,9 @@ export interface TokenValidationResponse {
 export class AuthService {
   constructor(private readonly authGrpcService: AuthGrpcService) {}
 
-  validateToken(data: { accessToken: string }): Observable<TokenValidationResponse> {
+  validateToken(data: {
+    accessToken: string;
+  }): Observable<TokenValidationResponse> {
     return this.authGrpcService.validateToken(data.accessToken);
   }
-} 
+}

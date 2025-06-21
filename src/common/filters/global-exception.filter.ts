@@ -24,13 +24,10 @@ export class GlobalExceptionFilter implements ExceptionFilter {
     const ctx = host.switchToHttp();
     const response = ctx.getResponse<Response>();
     const request = ctx.getRequest<Request>();
-
     const errorResponse = this.handleException(exception);
-    
-    // Only log the error message, not the stack trace or full error object
     let logMessage = `${request.method} ${request.url} ${errorResponse.statusCode} - ${errorResponse.message}`;
     if (exception instanceof Error && exception.message) {
-      logMessage += ` | Root error: ${exception.message}`;
+      logMessage += `| Root error: ${exception.message}`;
     }
     this.logger.error(logMessage);
 
@@ -38,11 +35,10 @@ export class GlobalExceptionFilter implements ExceptionFilter {
   }
 
   private handleException(exception: unknown): ErrorResponse {
-    // Handle HTTP Exceptions
     if (exception instanceof HttpException) {
       const status = exception.getStatus();
       const errorResponse = exception.getResponse();
-      const message = typeof errorResponse === 'string' 
+      const message = typeof errorResponse === 'string'
         ? errorResponse 
         : (errorResponse as any).message || 'An error occurred';
       
@@ -51,24 +47,18 @@ export class GlobalExceptionFilter implements ExceptionFilter {
         message: this.getUserFriendlyMessage(message),
       };
     }
-
-    // Handle RPC Exceptions
     if (exception instanceof RpcException) {
       return {
         statusCode: HttpStatus.BAD_GATEWAY,
         message: 'Service temporarily unavailable',
       };
     }
-
-    // Handle MongoDB Exceptions
     if (exception instanceof MongoError) {
       return {
         statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
         message: 'Database operation failed',
       };
     }
-
-    // Handle unknown errors
     return {
       statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
       message: 'An unexpected error occurred',
@@ -76,7 +66,6 @@ export class GlobalExceptionFilter implements ExceptionFilter {
   }
 
   private getUserFriendlyMessage(message: string): string {
-    // Map technical error messages to user-friendly ones
     const messageMap: { [key: string]: string } = {
       'Failed to fetch product details': 'Unable to retrieve product information',
       'Product not found': 'The requested product could not be found',

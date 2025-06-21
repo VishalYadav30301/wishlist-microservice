@@ -13,9 +13,7 @@ interface AuthService {
 export class AuthGrpcService implements OnModuleInit {
   private authService: AuthService;
 
-  constructor(
-    @Inject('AUTH_PACKAGE') private client: ClientGrpc,
-  ) {}
+  constructor(@Inject('AUTH_PACKAGE') private client: ClientGrpc) {}
 
   onModuleInit() {
     this.authService = this.client.getService<AuthService>('AuthService');
@@ -27,4 +25,4 @@ export class AuthGrpcService implements OnModuleInit {
   }> {
     return this.authService.validateToken({ accessToken });
   }
-} 
+}

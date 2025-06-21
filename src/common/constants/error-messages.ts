@@ -32,4 +32,4 @@ export const ERROR_MESSAGES = {
     BAD_REQUEST: 'Bad request',
     NOT_FOUND: 'Resource not found',
   },
-} as const; 
+} as const;

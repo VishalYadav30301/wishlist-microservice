@@ -1,12 +1,12 @@
 import { NestFactory } from '@nestjs/core';
 import { ValidationPipe, Logger } from '@nestjs/common';
-import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { GlobalExceptionFilter } from './common/filters/global-exception.filter';
 import { AppModule } from './app.module';
 import * as compression from 'compression';
 import helmet from 'helmet';
 import { MicroserviceOptions, Transport } from '@nestjs/microservices';
 import { join } from 'path';
+import { SwaggerConfig } from './swagger';
 
 async function bootstrap() {
   const logger = new Logger('Bootstrap');
@@ -46,44 +46,8 @@ async function bootstrap() {
     });
 
     // Swagger documentation setup
-    const config = new DocumentBuilder()
-      .setTitle('Wishlist Microservice API')
-      .setDescription(`
-        The Wishlist Microservice API provides endpoints for managing wishlists.
-        ## Features
-        - Get wishlist details
-        - Add items to wishlist
-        - Remove items from wishlist
-        - Clear wishlist
-        - Add items to cart
-      `)
-      .setVersion('1.0')
-      .addTag('wishlist', 'Wishlist management endpoints')
-      .addBearerAuth(
-        {
-          type: 'http',
-          scheme: 'bearer',
-          bearerFormat: 'JWT',
-          name: 'JWT',
-          description: 'Enter JWT token',
-          in: 'header',
-        },
-        'JWT-auth',
-      )
-      .build();
-
-    const document = SwaggerModule.createDocument(app, config);
-    SwaggerModule.setup('api', app, document, {
-      swaggerOptions: {
-        persistAuthorization: true,
-        tagsSorter: 'alpha',
-        operationsSorter: 'alpha',
-        docExpansion: 'none',
-        filter: true,
-        showRequestDuration: true,
-      },
-      customSiteTitle: 'Wishlist Microservice API Documentation',
-    });
+    const environment = process.env.NODE_ENV || 'development';
+    SwaggerConfig.setup(app, environment);
 
     const port = process.env.PORT as string; 
     await app.listen(port);

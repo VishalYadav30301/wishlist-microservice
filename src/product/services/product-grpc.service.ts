@@ -1,6 +1,6 @@
 import { Injectable, OnModuleInit, Inject } from '@nestjs/common';
 import { ClientGrpc } from '@nestjs/microservices';
-import { Observable, of } from 'rxjs';
+import { Observable } from 'rxjs';
 
 interface ProductService {
   GetProduct(request: { id: string }): Observable<{
