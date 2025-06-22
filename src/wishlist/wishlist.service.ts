@@ -17,13 +17,12 @@ import { CacheService } from './services/cache.service';
 @Injectable()
 export class WishlistService {
   private readonly logger = new Logger(WishlistService.name);
-  private readonly cacheService = new CacheService(5 * 60 * 1000); // 5 minutes TTL
-
+  private readonly cacheService = new CacheService(5 * 60 * 1000);
   constructor(
     @InjectModel(Wishlist.name) private wishlistModel: Model<WishlistDocument>,
     private productService: ProductService,
     private readonly cartGrpcService: CartGrpcService,
-  ) {}
+  ){}
 
   async getWishlist(userId: string): Promise<Wishlist> {
     try {

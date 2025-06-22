@@ -13,9 +13,6 @@ import { CartGrpcService } from './services/cart-grpc.service';
 
 require('dotenv').config();
 
-const cartProtoPath = join(__dirname, '../../src/proto/cart.proto');
-console.log('CART_PACKAGE protoPath:', cartProtoPath);
-
 @Module({
   imports: [
     MongooseModule.forFeature([{ name: Wishlist.name, schema: WishlistSchema }]),
@@ -43,7 +40,7 @@ console.log('CART_PACKAGE protoPath:', cartProtoPath);
         transport: Transport.GRPC,
         options: {
           package: 'cart',
-          protoPath: cartProtoPath,
+          protoPath:join(__dirname, '../../src/proto/cart.proto'),
           url: process.env.CART_SERVICE_URL,
         },
       },

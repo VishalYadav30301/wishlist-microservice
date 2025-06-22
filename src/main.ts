@@ -1,5 +1,5 @@
 import { NestFactory } from '@nestjs/core';
-import { ValidationPipe, Logger } from '@nestjs/common';
+import { ValidationPipe } from '@nestjs/common';
 import { GlobalExceptionFilter } from './common/filters/global-exception.filter';
 import { AppModule } from './app.module';
 import * as compression from 'compression';
@@ -7,13 +7,21 @@ import helmet from 'helmet';
 import { MicroserviceOptions, Transport } from '@nestjs/microservices';
 import { join } from 'path';
 import { SwaggerConfig } from './swagger';
+import { CustomLoggerService } from './common/logger';
 
 async function bootstrap() {
-  const logger = new Logger('Bootstrap');
-  
+  const app = await NestFactory.create(AppModule, {
+    logger: ['error', 'warn', 'log', 'debug', 'verbose'],
+  });
+
+  // Get the custom logger service
+  const logger = app.get(CustomLoggerService);
+
   try {
-    const app = await NestFactory.create(AppModule, {
-      logger: ['error', 'warn', 'log', 'debug', 'verbose'],
+    logger.log('Starting Wishlist Microservice', {
+      service: 'wishlist-service',
+      method: 'bootstrap',
+      environment: process.env.NODE_ENV || 'development',
     });
 
     // Security and performance middleware
@@ -35,23 +43,20 @@ async function bootstrap() {
       }),
     );
 
-    // Request logging middleware
-    app.use((req, res, next) => {
-      const start = Date.now();
-      res.on('finish', () => {
-        const duration = Date.now() - start;
-        logger.log(`${req.method} ${req.url} ${res.statusCode} - ${duration}ms`);
-      });
-      next();
-    });
-
     // Swagger documentation setup
     const environment = process.env.NODE_ENV || 'development';
     SwaggerConfig.setup(app, environment);
 
     const port = process.env.PORT as string; 
     await app.listen(port);
-console.log(join(__dirname, './proto/wishlist.proto'), 'hi');
+
+    logger.log('Wishlist Microservice started successfully', {
+      service: 'wishlist-service',
+      method: 'bootstrap',
+      port,
+      environment,
+    });
+
     // Create gRPC microservice
     const grpcApp = await NestFactory.createMicroservice<MicroserviceOptions>(AppModule, {
       transport: Transport.GRPC,
@@ -61,11 +66,21 @@ console.log(join(__dirname, './proto/wishlist.proto'), 'hi');
         url: process.env.WISHLIST_SERVICE_URL
       },
     });
+    
     grpcApp.listen().then(() => {
-      logger.log('Wishlist gRPC microservice is listening');
+      logger.log('Wishlist gRPC microservice is listening', {
+        service: 'wishlist-service',
+        method: 'bootstrap',
+        transport: 'gRPC',
+        url: process.env.WISHLIST_SERVICE_URL,
+      });
     });
   } catch (error) {
-    logger.error('Failed to start application:', error);
+    logger.error('Failed to start application', {
+      service: 'wishlist-service',
+      method: 'bootstrap',
+      error: error.message,
+    }, error.stack);
     process.exit(1);
   }
 }

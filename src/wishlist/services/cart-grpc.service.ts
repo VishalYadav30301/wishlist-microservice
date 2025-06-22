@@ -20,7 +20,6 @@ export class CartGrpcService {
   }
 
   addToCart(userId: string, items: Array<{ productId: string; quantity: number }>) {
-    console.log(items);
     const transformedItems = items.map(item => ({
       productId: item.productId,
       quantity: item.quantity,

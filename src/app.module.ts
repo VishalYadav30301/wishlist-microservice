@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { WishlistModule } from './wishlist/wishlist.module';
+import { LoggerModule } from './common/logger';
 import configuration from './config/configuration';
 import * as dotenv from 'dotenv';
 require('dotenv').config();
@@ -19,6 +20,7 @@ require('dotenv').config();
       }),
       inject: [ConfigService],
     }),
+    LoggerModule,
     WishlistModule,
   ],
 })

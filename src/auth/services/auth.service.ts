@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { Observable } from 'rxjs';
 import { AuthGrpcService } from './auth-grpc.service';
 
-export interface TokenValidationResponse {
+export interface TokenValidationResponse{
   isValid: boolean;
   message?: string;
   entityId: string;
